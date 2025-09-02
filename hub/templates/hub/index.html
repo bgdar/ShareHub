@@ -1,0 +1,52 @@
+{% extends "layouts.html" %}
+{% block content %}
+ <div class="grid grid-cols-12 gap-4 p-4">
+    
+    <!-- Sidebar kiri: daftar file -->
+    <aside class="col-span-3 bg-white shadow-md rounded-lg p-4">
+      <h2 class="text-lg font-bold mb-3">📂 Daftar File</h2>
+      <ul class="space-y-2">
+        <li><a href="#" class="block p-2 rounded hover:bg-gray-200">index.html</a></li>
+        <li><a href="#" class="block p-2 rounded hover:bg-gray-200">style.css</a></li>
+        <li><a href="#" class="block p-2 rounded hover:bg-gray-200">script.js</a></li>
+        <li><a href="#" class="block p-2 rounded hover:bg-gray-200">README.md</a></li>
+      </ul>
+    </aside>
+
+    <!-- Konten kanan -->
+    <main class="col-span-9 flex flex-col space-y-4">
+      <!-- Bagian atas: profil/nama -->
+      <header class="bg-white shadow-md rounded-lg p-4 flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-semibold">👤 Nama Pengguna</h2>
+          <p class="text-sm text-gray-600">Bergabung sejak: 2023</p>
+        </div>
+        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+          + Ikuti
+        </button>
+      </header>
+
+      <!-- Bagian komentar -->
+      <section class="bg-white shadow-md rounded-lg p-4">
+        <h2 class="text-lg font-bold mb-4">💬 Komentar</h2>
+        <div class="space-y-4">
+          <!-- Komentar 1 -->
+          <div class="border-b pb-2">
+            <p class="font-semibold">User123</p>
+            <p class="text-gray-700">Ini komentar pertama di file index.html 🚀</p>
+          </div>
+          <!-- Komentar 2 -->
+          <div class="border-b pb-2">
+            <p class="font-semibold">DevGuy</p>
+            <p class="text-gray-700">Coba tambahkan styling Tailwind untuk tombolnya.</p>
+          </div>
+          <!-- Komentar 3 -->
+          <div>
+            <p class="font-semibold">JaneDoe</p>
+            <p class="text-gray-700">Bagus banget strukturnya! 🔥</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+{% endblock %}

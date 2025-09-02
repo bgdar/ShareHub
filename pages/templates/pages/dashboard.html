@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Django Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome (opsional) -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body
+    class="h-screen w-screen flex items-center justify-center bg-gradient-to-br from-[#45758a] to-[#1f2937]"
+  >
+    <div
+      class="bg-white shadow-xl rounded-2xl p-10 border border-[#000000] w-[400px] text-center"
+    >
+      <!-- Header -->
+      <h1 class="text-2xl font-bold text-[#f0c85e] mb-4">
+        <i class="fa-solid fa-gauge-high mr-2 text-[#5a7b8a]"></i>
+        Django Administration
+      </h1>
+
+      <!-- Main Content -->
+      <div class="mb-6">
+        <h2 class="text-xl font-semibold text-[#000000]">Dashboard</h2>
+        <p class="text-[#374151] text-sm">
+          Selamat datang di panel admin Anda.
+        </p>
+      </div>
+
+      <!-- Button Home -->
+      <a
+        href=" {% url 'page_home' %}"
+        class="inline-flex items-center px-6 py-2 rounded-lg bg-[#5a7b8a] text-white font-medium shadow hover:bg-[#3b82f6] transition duration-300 ease-in-out"
+      >
+        <i class="fa-solid fa-house mr-2"></i> Home
+      </a>
+    </div>
+  </body>
+</html>

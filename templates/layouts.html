@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{ title|default:"My Django App" }}</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome (opsional) -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <!-- Ionicons -->
+    <!-- web = https://ionic.io/ionicons -->
+    <script
+      type="module"
+      src="https://cdnjs.cloudflare.com/ajax/libs/ionicons/8.0.13/esm/ionicons.min.js"
+    ></script>
+
+    <!-- Alpine js -->
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"
+    ></script>
+  </head>
+  <body class="bg-gray-100 min-h-screen">
+    <!-- HEADER / NAVBAR -->
+    <header class="bg-white shadow-md">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16 items-center">
+          <!-- Logo / Brand -->
+          <div class="flex items-center space-x-2">
+            <span class="text-xl font-bold"> ShareHub</span>
+          </div>
+
+          <!-- Navigation -->
+          <nav class="flex space-x-4">
+            <a
+              href="/"
+              class="flex items-center gap-1 px-3 py-2 rounded hover:bg-gray-200"
+            >
+              <ion-icon name="home-outline"></ion-icon> Home
+            </a>
+            <a
+              href="/hub"
+              class="flex items-center gap-1 px-3 py-2 rounded hover:bg-gray-200"
+            >
+              <ion-icon name="people-outline"></ion-icon> Community
+            </a>
+          </nav>
+
+          <div class="p-2 text-center">
+            <a href="/profil"> <i class="fa-solid fa-user"></i></a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-7xl mx-auto p-4">
+      {% block content %}
+      <!-- Konten halaman akan dimasukkan di sini -->
+      {% endblock %}
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white mt-8 shadow-inner">
+      <div class="max-w-7xl mx-auto p-4 text-center text-gray-500 text-sm">
+        &copy; {{ year|default:2025 }} ShareHub. All rights reserved.
+      </div>
+    </footer>
+  </body>
+</html>
