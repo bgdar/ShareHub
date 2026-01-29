@@ -9,17 +9,12 @@ Aplikasi share file , image , dan lainya , layaknya media social
 ### Tech Stack
 
 <p align="center">
-  <!-- Django -->
   <img src="https://skillicons.dev/icons?i=django" width="50" alt="Django" />
-  <!-- Python -->
   <img src="https://skillicons.dev/icons?i=python" width="50" alt="Python" />
-  <!-- Alpine.js -->
   <img src="https://skillicons.dev/icons?i=javascript" width="50" alt="Alpine.js" />
-  <!-- HTML -->
   <img src="https://skillicons.dev/icons?i=html" width="50" alt="HTML" />
-  <!-- NvChad (pakai Neovim icon, karena tidak ada yang spesifik) -->
-  <img src="https://skillicons.dev/icons?i=neovim" width="50" alt="NvChad" />
-  <!-- uv (pakai custom shields.io badge) -->
+  <img src="https://skillicons.dev/icons?i=tailwindcss" width="50" alt="HTML" />
+ 
   <img src="https://img.shields.io/badge/uv-FF6F00?logo=python&logoColor=white&style=for-the-badge" height="40" alt="uv" />
 </p>
 
@@ -28,17 +23,29 @@ Aplikasi share file , image , dan lainya , layaknya media social
 ```bash
 # ative virtula env ( linux | mac)
 source .venv/bin/activate
+# jalanakn migration untuk isi database
+python manage.py migrate
 # run project
 uv run python manage.py runserver
+```
+
+use this password for generated or test
+
+> jika belum punya register aja dulu
+
+```bash
+user : daraja
+pass : dar_231=[]
 
 ```
 
-### MAIN APP
+### Main App
 
-`accounts` = untuk mengelola **Users** , baik login , logout , dll
-`pages` = akan menjadi App utama yg menghandle halaman untuk di tampilkan
-`hub` = bagian pages untuk cominity berinteraksi nantinya
-`api` = app API untuk handle seperti , upload file , dan lain sebagainay
+> page App yang akan menjadi halaman '/'
+> `accounts` ('\accounts\') = untuk mengelola **Users** , baik login , logout , dll
+> `pages` ('\pages\') akan menjadi App utama yg menghandle halaman untuk di tampilkan
+> `hub` ('\hub\')= bagian pages untuk cominity berinteraksi nantinya
+> `api` ('\api\')= app API untuk handle seperti , upload file , dan lain sebagainay
 
 ### Static
 
@@ -51,6 +58,14 @@ uv run python manage.py runserver
 3.  `document` = .pdf, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .odt, .ods, .rtf, .txt, .md , dll
 4.  `executable` "agar berat jadi ada batas minila " = .exe, .msi, .apk, .deb, .rpm, .dmg, .bin , dll
 5.  `image` = .jpg, .jpeg, .png, .gif, .bmp, .tiff, .svg, .webp, .ico , dll
+
+### Folder
+
+- `media` = folder untuk menyimpan file
+
+### table
+
+- `fileManagements` = table untuk menyimpan file
 
 ### Dafar Api
 

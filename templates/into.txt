@@ -1,0 +1,1 @@
+ini template global yang bsia di panggil di template/ template lain

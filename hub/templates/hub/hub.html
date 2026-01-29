@@ -1,0 +1,108 @@
+{% extends "layouts.html" %}
+{% block content %}
+ <div class="grid grid-cols-12 gap-4 p-4" >
+   
+
+   <div class="col-span-9 flex flex-col " x-data="hubData()">  
+
+
+<div class="col-span-9 flex flex-col space-y-4"
+     x-data="hubData()">
+
+  <template x-for="hub in hubs" :key="hub.pk">
+    <main class="bg-white shadow-md rounded-lg p-4 space-y-3">
+
+      <header class="flex justify-between items-center">
+        <div>
+          <h2 class="text-xl font-semibold"
+              x-text="hub.fields.message"></h2>
+
+          <!-- <p class="text-sm text-gray-500" -->
+             <!-- x-text="hub.fields.file_path"></p> -->
+           <!-- tampa img file dengan path static dan saat di click bisa download_file -->
+           <p>file : </p>
+        </div>
+
+        <button class="bg-blue-600 text-white px-3 py-1 rounded">
+          + Ikuti
+        </button>
+      </header>
+
+      <section class="border-t pt-3">
+        <h3 class="font-bold">💬 Komentar</h3>
+        <p class="text-gray-400 italic">Belum ada komentar</p>
+      </section>
+
+    </main>
+  </template>
+
+</div>
+
+
+    
+
+<div class="col-span-3 shadow-md p-4"
+     x-data="apiData()">
+
+  <form action="{% url 'api_hub_upload' %}"
+        method="POST"
+        class="space-y-4 flex gap-2 items-center justify-center">
+    {% csrf_token %}
+     <div class="flex flex-col items-center w-full h-full">
+ <label>Message</label>
+    <input type="text"
+           name="message"
+           class="w-full border p-2 rounded" required>
+
+    <button class="bg-blue-600 text-white w-full py-2 rounded">
+      Publish
+    </button>
+     </div>
+
+   
+     <div class="flex flex-col items-center w-full h-full">
+  <label>Path File</label>
+
+    <select name="path_file" required
+            class="w-full border p-2 rounded">
+      <option value="">Pilih File</option>
+
+      <template x-for="file in files" :key="file.id">
+        <option :value="file.id"
+                x-text="file.fileName + ' (' + file.file_size + ' B)'">
+        </option>
+      </template>
+    </select>
+</div>
+  
+
+  </form>
+</div>
+
+
+ <script>
+
+ // langsung return agar ti terima oleh alpine
+function hubData() {
+  return {
+    hubs: JSON.parse('{{ data_hub|escapejs }}')
+  }
+}
+
+function apiData() {
+  return {
+    files: [],
+
+    init() {
+      fetch("/api/hub/list/")
+        .then(res => res.json())
+        .then(data => {
+ console,info("data list: ",data)
+          this.files = data
+        })
+    }
+  }
+}
+</script>
+
+{% endblock %}

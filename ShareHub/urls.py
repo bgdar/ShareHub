@@ -14,20 +14,20 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path, include
 from pages.views import page_not_found_view
 
 # Django membaca urlpatterns dari atas ke bawah.
 urlpatterns = [
-
     path("", include("pages.urls")),  # halaman "/"
-    path('admin/', admin.site.urls),
+    path("admin/", admin.site.urls),
     path("hub/", include("hub.urls")),
     # url users
     path("accounts/", include("accounts.urls")),  # semua URL auth di sini
     # api utama project
-    # path("api/", include("api.urls")),
+    path("api/", include("api.urls")),
 ]
 # custom 404
 handler404 = page_not_found_view

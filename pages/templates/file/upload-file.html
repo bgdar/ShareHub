@@ -1,0 +1,196 @@
+{% extends "layouts.html" %} {% block content %}
+
+<div class="min-h-screen bg-[var(--color-bg-main)] flex items-center justify-center px-4" x-data="fileUpload()">
+  <div class="w-full max-w-2xl rounded-xl shadow-xl p-8" style="background-color: var(--color-bg-form)">
+    <h2 class="text-2xl font-semibold mb-2" style="color: var(--color-text-header)">
+      Upload File
+    </h2>
+
+    <p class="text-sm mb-6" style="color: var(--color-text-muted)">
+      Upload file sesuai kategori. Sistem akan mendeteksi tipe file secara
+      otomatis.
+    </p>
+
+    <!-- Upload Area -->
+    <form method="post" action="{% url 'api_upload_file' %}" enctype="multipart/form-data" class="space-y-6">
+      {% csrf_token %}
+
+      <!-- Dropzone -->
+      <label
+        class="flex flex-col items-center justify-center border-2 border-dashed rounded-lg cursor-pointer p-8 text-center transition"
+        :class="dragging ? 'bg-[var(--color-bg-hover)]' : ''" style="border-color: var(--color-border-soft)"
+        @dragover.prevent="dragging = true" @dragleave.prevent="dragging = false" @drop.prevent="handleDrop($event)">
+        <input type="file" name="file" class="hidden" @change="handleFile($event)" />
+
+        <div class="text-4xl mb-3">📁</div>
+
+        <p class="text-sm font-medium" style="color: var(--color-text-secondary)">
+          Klik atau drag & drop file ke sini
+        </p>
+
+        <p class="text-xs mt-1" style="color: var(--color-text-muted)">
+          Maksimal ukuran tergantung jenis file
+        </p>
+      </label>
+
+      <!-- File Info -->
+      <template x-if="file">
+        <div class="border rounded-lg p-4" style="border-color: var(--color-border-light)">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium" style="color: var(--color-text-header)" x-text="file.name"></p>
+
+              <p class="text-xs" style="color: var(--color-text-muted)" x-text="formatSize(file.size)"></p>
+            </div>
+
+            <!-- Tag -->
+            <span class="px-3 py-1 rounded-full text-xs font-semibold text-white"
+              :style="`background-color: ${tag.color}`" x-text="tag.label"></span>
+          </div>
+
+          <!-- Info -->
+          <p class="text-xs mt-2" :style="`color: ${tag.infoColor}`" x-text="tag.info"></p>
+        </div>
+      </template>
+
+      <!-- jenis file yang akan di kirim ke server  -->
+      <input type="hidden" name="jenis_file"  :value="tag.label" /> 
+      <!-- ini yang di kirim dari tag -->
+      
+
+      <!-- Submit -->
+      <button type="submit" class="w-full py-2 rounded-md font-semibold text-white transition"
+        style="background-color: var(--color-primary)"
+        onmouseover="this.style.backgroundColor = 'var(--color-primary-hover)'"
+        onmouseout="this.style.backgroundColor = 'var(--color-primary)'">
+        Upload
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- ================= Alpine Logic ================= -->
+<script>
+  function fileUpload() {
+    return {
+      file: null,
+      dragging: false,
+      tag: {}, 
+// jenis file si ambil dari nama field yang adad di detectType()
+
+      handleFile(e) {
+        this.file = e.target.files[0];
+        this.detectType();
+      },
+
+      handleDrop(e) {
+        this.dragging = false;
+        this.file = e.dataTransfer.files[0];
+        this.detectType();
+      },
+
+      detectType() {
+        const ext = this.file.name.split(".").pop().toLowerCase();
+
+        const map = {
+          arsip: {
+            exts: ["zip", "rar", "7z", "tar", "gz", "bz2"],
+            label: "arsip",
+            color: "var(--color-warning)",
+            info: "File arsip cenderung besar. Ukuran dibatasi.",
+            infoColor: "var(--color-warning)",
+          },
+          code: {
+            exts: [
+              "js",
+              "ts",
+              "py",
+              "java",
+              "c",
+              "cpp",
+              "php",
+              "rs",
+              "html",
+              "css",
+              "json",
+              "xml",
+              "yaml",
+              "sh",
+            ],
+            label: "code",
+            color: "var(--color-info)",
+            info: "File kode sumber. Aman dan ringan.",
+            infoColor: "var(--color-info)",
+          },
+          document: {
+            exts: [
+              "pdf",
+              "doc",
+              "docx",
+              "xls",
+              "xlsx",
+              "ppt",
+              "pptx",
+              "odt",
+              "ods",
+              "rtf",
+              "txt",
+              "md",
+            ],
+            label: "document",
+            color: "var(--color-primary)",
+            info: "Dokumen standar.",
+            infoColor: "var(--color-primary)",
+          },
+          executable: {
+            exts: ["exe", "msi", "apk", "deb", "rpm", "dmg", "bin"],
+            label: "executable",
+            color: "var(--color-error)",
+            info: "File eksekusi dibatasi ukuran dan keamanan.",
+            infoColor: "var(--color-error)",
+          },
+          image: {
+            exts: [
+              "jpg",
+              "jpeg",
+              "png",
+              "gif",
+              "bmp",
+              "tiff",
+              "svg",
+              "webp",
+              "ico",
+            ],
+            label: "image",
+            color: "var(--color-success)",
+            info: "Gambar ringan dan aman.",
+            infoColor: "var(--color-success)",
+          },
+        };
+
+        for (const key in map) {
+          if (map[key].exts.includes(ext)) { // jika file dengan extension di temukan maka tag di update
+            this.tag = map[key];
+            return;
+          }
+        }
+
+        this.tag = {
+          label: "unknown",
+          color: "var(--color-text-muted)",
+          info: "Format tidak dikenali.",
+          infoColor: "var(--color-text-muted)",
+        };
+      },
+
+      formatSize(bytes) {
+        const sizes = ["B", "KB", "MB", "GB"];
+        if (bytes === 0) return "0 B";
+        const i = Math.floor(Math.log(bytes) / Math.log(1024));
+        return (bytes / Math.pow(1024, i)).toFixed(2) + " " + sizes[i];
+      },
+    };
+  }
+</script>
+
+{% endblock %}

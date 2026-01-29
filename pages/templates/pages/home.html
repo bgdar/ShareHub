@@ -1,3 +1,123 @@
-{% extends "layouts.html" %} {% block content %}
-<h3> home </h3>
+
+{% extends "layouts.html" %}
+{% block content %}
+
+<div class="min-h-screen bg-[var(--color-bg-main)] p-6"
+     x-data="homeHub()">
+
+  <header class="mb-6">
+    <h1 class="text-2xl font-bold text-[var(--color-text-header)]">
+      📂 Hub File
+    </h1>
+    <p class="text-sm text-[var(--color-text-muted)]">
+      Kelola dan pantau file yang kamu upload
+    </p>
+  </header>
+
+  <!-- STAT CARDS -->
+  <section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+    
+    <div class="bg-[var(--color-bg-form)] border border-[var(--color-border-soft)] rounded-lg p-4">
+      <p class="text-sm text-[var(--color-text-muted)]">Total Upload</p>
+      <h2 class="text-2xl font-bold text-[var(--color-primary)]"
+          x-text="stats.uploads"></h2>
+    </div>
+
+    <div class="bg-[var(--color-bg-form)] border border-[var(--color-border-soft)] rounded-lg p-4">
+      <p class="text-sm text-[var(--color-text-muted)]">Total File</p>
+      <h2 class="text-2xl font-bold text-[var(--color-success)]"
+          x-text="stats.files"></h2>
+    </div>
+
+    <div class="bg-[var(--color-bg-form)] border border-[var(--color-border-soft)] rounded-lg p-4">
+      <p class="text-sm text-[var(--color-text-muted)]">Komentar</p>
+      <h2 class="text-2xl font-bold text-[var(--color-info)]"
+          x-text="stats.comments"></h2>
+    </div>
+
+    <div class="bg-[var(--color-bg-form)] border border-[var(--color-border-soft)] rounded-lg p-4">
+      <p class="text-sm text-[var(--color-text-muted)]">Storage</p>
+      <h2 class="text-2xl font-bold text-[var(--color-warning)]">
+        120 MB
+      </h2>
+    </div>
+
+  </section>
+
+  <!-- KATEGORI FILE -->
+  <section class="mb-8">
+    <h2 class="font-semibold mb-3 text-[var(--color-text-header)]">
+      📁 Kategori File
+    </h2>
+
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <template x-for="cat in categories" :key="cat.name">
+        <div class="bg-[var(--color-bg-form)] hover:bg-[var(--color-bg-hover)]
+                    border border-[var(--color-border-soft)]
+                    rounded-lg p-4 cursor-pointer transition">
+          <p class="font-semibold text-[var(--color-text-main)]"
+             x-text="cat.name"></p>
+          <p class="text-sm text-[var(--color-text-muted)]"
+             x-text="cat.count + ' file'"></p>
+        </div>
+      </template>
+    </div>
+  </section>
+
+  <!-- RECENT UPLOAD -->
+  <section>
+    <h2 class="font-semibold mb-3 text-[var(--color-text-header)]">
+      🕒 Upload Terbaru
+    </h2>
+
+    <div class="space-y-3">
+      <template x-for="hub in recentHub" :key="hub.id">
+        <div class="bg-[var(--color-bg-form)]
+                    border border-[var(--color-border-soft)]
+                    rounded-lg p-4 flex justify-between items-center">
+
+          <div>
+            <p class="font-medium text-[var(--color-text-main)]"
+               x-text="hub.message"></p>
+            <p class="text-sm text-[var(--color-text-muted)]"
+               x-text="hub.file"></p>
+          </div>
+
+          <span class="text-xs text-[var(--color-text-muted)]"
+                x-text="hub.date"></span>
+        </div>
+      </template>
+    </div>
+  </section>
+
+</div>
+
+<!-- ALPINE -->
+<script>
+function homeHub() {
+  return {
+    stats: {
+      uploads: 12,
+      files: 34,
+      comments: 56
+    },
+
+    categories: [
+      { name: "Code", count: 10 },
+      { name: "Document", count: 8 },
+      { name: "Image", count: 6 },
+      { name: "Archive", count: 5 },
+      { name: "Executable", count: 3 },
+    ],
+
+    recentHub: [
+      { id: 1, message: "Upload API Service", file: "api.go", date: "Hari ini" },
+      { id: 2, message: "Dokumentasi Django", file: "docs.pdf", date: "Kemarin" },
+      { id: 3, message: "UI Design", file: "design.png", date: "2 hari lalu" },
+    ]
+  }
+}
+</script>
+
 {% endblock %}
+

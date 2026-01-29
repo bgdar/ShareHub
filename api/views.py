@@ -1,30 +1,47 @@
 # from django.shortcuts import render
-from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
-from django.forms.models import model_to_dict
+from django.contrib.auth.decorators import login_required
+
+from django.http import HttpRequest
 
 import os
-
+from enum import Enum
 from .models import fileManagement
+
 # Upload File
 
 
+class JenisFIle(Enum):
+    CODE = "code"
+    IMAGE = "image"
+    DOCUMENT = "document"
+    ARSIP = "arsip"
+    EXECUTABLE = "executable"
+
+
+@login_required(login_url="accounts:accounts_login")
 @csrf_exempt
-def upload_file(request):
+def upload_file(request: HttpRequest):
     if request.method == "POST":
         file_obj = request.FILES.get("file")  # ambil file dari request
         description = request.POST.get("description", "")
         fileName = request.POST.get(
-            "fileName", file_obj.name if file_obj else "unknown")
+            "fileName", file_obj.name if file_obj else "unknown"
+        )
+        jenis_file = request.POST.get("jenis_file")
+        print("jenis file ", jenis_file)
+
+        user = request.user
 
         if file_obj:
-            # simpan file di storage Django
             path = default_storage.save(
-                f"uploads/{file_obj.name}", ContentFile(file_obj.read()))
+                f"uploads/{file_obj.name}", ContentFile(file_obj.read())
+            )
             file_size = file_obj.size
 
             # simpan metadata ke database
@@ -32,21 +49,34 @@ def upload_file(request):
                 fileName=fileName,
                 description=description,
                 file_size=file_size,
-                code_file=file_obj if file_obj else None,  # atau sesuaikan field lain
+                user=user,
+                # atau sesuaikan field lain
+                code_file=file_obj if jenis_file == JenisFIle.CODE else None,
+                document_file=(file_obj if jenis_file == JenisFIle.DOCUMENT else None),
+                executable_file=(
+                    file_obj if jenis_file == JenisFIle.EXECUTABLE else None
+                ),
+                image_file=file_obj if jenis_file == JenisFIle.IMAGE else None,
             )
-            return JsonResponse({"message": "File uploaded", "data": model_to_dict(file_entry)})
+            messages.info(request=request, message="file uploade")
+            return redirect("page_file_upload")
+            # return JsonResponse({"message": "File uploaded", "data": model_to_dict(file_entry)})
         else:
-            return JsonResponse({"error": "No file uploaded"}, status=400)
+            messages.warning(request=request, message="No file uploaded")
+            return redirect("page_file_upload")
 
     return JsonResponse({"error": "Invalid request"}, status=405)
 
 
 # List semua file
-def list_files(request):
+@login_required(login_url="accounts:accounts_login")
+def list_files(request: HttpRequest):
     files = fileManagement.objects.all().values()
+    print("file : ", files)
     return JsonResponse(list(files), safe=False)
 
 
+@login_required(login_url="accounts:accounts_login")
 # Download file by ID
 def download_file(request, file_id):
     try:
@@ -58,7 +88,8 @@ def download_file(request, file_id):
 
             with open(file_path, "rb") as f:
                 response = HttpResponse(
-                    f.read(), content_type="application/octet-stream")
+                    f.read(), content_type="application/octet-stream"
+                )
                 response["Content-Disposition"] = f"attachment; filename={
                     file_name}"
                 return response
@@ -68,6 +99,7 @@ def download_file(request, file_id):
         return JsonResponse({"error": "Invalid file ID"}, status=404)
 
 
+@login_required(login_url="accounts:accounts_login")
 def delete_file(request, pk):
     if request.method == "DELETE":
         file_instance = get_object_or_404(fileManagement, pk=pk)
