@@ -3,14 +3,9 @@
 
 <div class="bg-[var(--color-bg-main)] min-h-screen">
 
-  <!-- ===================== -->
-  <!-- Cover / Header -->
-  <!-- ===================== -->
+  
   <div class="h-48 w-full" style="background-color: var(--color-header-bg);"></div>
 
-  <!-- ===================== -->
-  <!-- Profile Card -->
-  <!-- ===================== -->
   <div class="max-w-5xl mx-auto px-4">
 
     <div class="relative bg-[var(--color-bg-form)] rounded-xl shadow-lg p-6 -mt-20" x-data="{ editing: false }">
@@ -25,15 +20,14 @@
         </div>
       </div>
 
-      <!-- Action -->
       <div class="flex justify-end">
-        <button @click="editing = !editing" class="px-4 py-2 rounded-md text-sm font-medium text-white"
+        <a 
+          href="{% url 'accounts:accounts_update' %}"
+             class="px-4 py-2 rounded-md text-sm font-medium text-white"
           style="background-color: var(--color-primary);">
           Edit Profile
-        </button>
+        </a>
       </div>
-
-      <!-- Info -->
       <div class="mt-16">
         <h1 class="text-2xl font-semibold" style="color: var(--color-text-header);">
           {{ user.get_full_name|default:user.username }}
@@ -48,9 +42,7 @@
         </p>
       </div>
 
-      <!-- ===================== -->
-      <!-- About -->
-      <!-- ===================== -->
+      
       <div class="mt-6">
         <h2 class="text-lg font-semibold mb-2" style="color: var(--color-text-header);">
           About
@@ -63,9 +55,7 @@
         </p>
       </div>
 
-      <!-- ===================== -->
-      <!-- Skills -->
-      <!-- ===================== -->
+      
       <div class="mt-6">
         <h2 class="text-lg font-semibold mb-2" style="color: var(--color-text-header);">
           Skills

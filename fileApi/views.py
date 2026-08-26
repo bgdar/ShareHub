@@ -1,5 +1,6 @@
 # from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
+from django.core.serializers.json import DjangoJSONEncoder  # <-- Tambah import ini
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
@@ -8,10 +9,10 @@ from django.core.files.base import ContentFile
 from django.contrib.auth.decorators import login_required
 
 from django.http import HttpRequest
-
+import json
 import os
 from enum import Enum
-from .models import fileManagement
+from .models import FileManagement
 
 # Upload File
 
@@ -22,6 +23,7 @@ class JenisFIle(Enum):
     DOCUMENT = "document"
     ARSIP = "arsip"
     EXECUTABLE = "executable"
+    ALL = "all"
 
 
 @login_required(login_url="accounts:accounts_login")
@@ -45,14 +47,15 @@ def upload_file(request: HttpRequest):
             file_size = file_obj.size
 
             # simpan metadata ke database
-            file_entry = fileManagement.objects.create(
+            file_entry = FileManagement.objects.create(
                 fileName=fileName,
                 description=description,
                 file_size=file_size,
                 user=user,
                 # atau sesuaikan field lain
                 code_file=file_obj if jenis_file == JenisFIle.CODE else None,
-                document_file=(file_obj if jenis_file == JenisFIle.DOCUMENT else None),
+                document_file=(file_obj if jenis_file ==
+                               JenisFIle.DOCUMENT else None),
                 executable_file=(
                     file_obj if jenis_file == JenisFIle.EXECUTABLE else None
                 ),
@@ -71,16 +74,70 @@ def upload_file(request: HttpRequest):
 # List semua file
 @login_required(login_url="accounts:accounts_login")
 def list_files(request: HttpRequest):
-    files = fileManagement.objects.all().values()
+    files = FileManagement.objects.all().values()
     print("file : ", files)
     return JsonResponse(list(files), safe=False)
+
+
+@login_required(login_url="accounts:accounts_login")
+def selected_file(request: HttpRequest, *arg, **kwargs):
+    if request.method == "POST":
+
+        type_file = kwargs.get('type_selected', '').lower()
+
+        print("Tipe file yang masuk ke views:", type_file)  # Cek terminal Anda
+
+        # Filter file milik user yang sedang login agar aman
+        files_query = FileManagement.objects.filter(user=request.user)
+
+        if type_file == JenisFIle.CODE.value:
+            files_query = files_query.filter(
+                code_file__isnull=False).exclude(code_file="")
+        elif type_file == JenisFIle.DOCUMENT.value:
+            files_query = files_query.filter(
+                document_file__isnull=False).exclude(document_file="")
+        elif type_file == JenisFIle.ARSIP.value:
+            files_query = files_query.filter(
+                arsip_file__isnull=False).exclude(arsip_file="")
+        elif type_file == JenisFIle.EXECUTABLE.value:
+            files_query = files_query.filter(
+                executable_file__isnull=False).exclude(executable_file="")
+        elif type_file == JenisFIle.IMAGE.value:
+            files_query = files_query.filter(
+                image_file__isnull=False).exclude(image_file="")
+        elif type_file == JenisFIle.ALL.value or type_file == 'all' or not type_file:
+            # Jika 'all' atau kosong, tampilkan semua file milik user
+            pass
+        else:
+            return JsonResponse({"error": f"Tipe '{type_file}' tidak valid"}, status=400)
+
+        # Ambil field spesifik yang ingin dikirim ke frontend
+        files_list = list(
+            files_query.values(
+                "id",
+                "fileName",
+                "description",
+                "file_size",
+                "code_file",
+                "document_file",
+                "arsip_file",
+                "executable_file",
+                "image_file",
+                "create_at",
+            )
+        )
+
+        response_data = json.dumps(files_list, cls=DjangoJSONEncoder)
+        return HttpResponse(response_data, content_type="application/json")
+
+    return JsonResponse({"error": "Method tidak diizinkan"}, status=405)
 
 
 @login_required(login_url="accounts:accounts_login")
 # Download file by ID
 def download_file(request, file_id):
     try:
-        file_entry = fileManagement.objects.get(id=file_id)
+        file_entry = FileManagement.objects.get(id=file_id)
 
         if file_entry.code_file:
             file_path = file_entry.code_file.path
@@ -95,14 +152,14 @@ def download_file(request, file_id):
                 return response
         else:
             return JsonResponse({"error": "File not found"}, status=404)
-    except fileManagement.DoesNotExist:
+    except FileManagement.DoesNotExist:
         return JsonResponse({"error": "Invalid file ID"}, status=404)
 
 
 @login_required(login_url="accounts:accounts_login")
 def delete_file(request, pk):
     if request.method == "DELETE":
-        file_instance = get_object_or_404(fileManagement, pk=pk)
+        file_instance = get_object_or_404(FileManagement, pk=pk)
 
         # Hapus file fisik di storage jika ada
         file_fields = [

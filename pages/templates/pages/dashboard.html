@@ -3,39 +3,49 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- tailwindcss  -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- Ionicons -->
+    <!-- web = https://ionic.io/ionicons -->
+    <script
+      type="module"
+      src="https://unpkg.com/ionicons@8.0.13/dist/ionicons/ionicons.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://unpkg.com/ionicons@8.0.13/dist/ionicons/ionicons.js"
+    ></script
+
     <title>Django Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome (opsional) -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    />
+
   </head>
+
   <body
     class="h-screen w-screen flex items-center justify-center bg-gradient-to-br from-[#45758a] to-[#1f2937]"
   >
     <div
       class="bg-white shadow-xl rounded-2xl p-10 border border-[#000000] w-[400px] text-center"
     >
-      <!-- Header -->
-      <h1 class="text-2xl font-bold text-[#f0c85e] mb-4">
-        <i class="fa-solid fa-gauge-high mr-2 text-[#5a7b8a]"></i>
+      <h1 class="text-2xl font-bold  mb-4">
+<ion-icon name="speedometer" class="mr-2 text-[#5a7b8a]"></ion-icon>
+
       ShareHub
       </h1>
 
-      <!-- Main Content -->
       <div class="mb-6">
         <p class="text-[#374151] text-sm">
           Aplikasi share file , image , dan lainya , layaknya media social
         </p>
       </div>
 
-      <!-- Button Home -->
       <a
         href=" {% url 'page_home' %}"
         class="inline-flex items-center px-6 py-2 rounded-lg bg-[#5a7b8a] text-white font-medium shadow hover:bg-[#3b82f6] transition duration-300 ease-in-out"
       >
-        <i class="fa-solid fa-house mr-2"></i> Home
+<ion-icon name="home-outline" class="mr-2"></ion-icon> Home
+
       </a>
     </div>
   </body>

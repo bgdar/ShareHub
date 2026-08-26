@@ -49,3 +49,11 @@ def profile_view(request):
     }
 
     return render(request, "page/profile.html", context=context)
+
+
+@login_required(login_url="accounts:accounts_login")
+def profile_update(request: HttpRequest):
+    if request.method == "POST":
+        print("data : ", request.body)
+    else:
+        return render(request, "page/update-profile.html")

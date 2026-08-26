@@ -7,7 +7,6 @@
   <div
     class="w-full max-w-2xl rounded-xl shadow-xl p-8 bg-[var(--color-bg-form)]"
   >
-    <!-- Title -->
     <h2
       class="text-2xl font-semibold mb-6"
       style="color: var(--color-text-header)"
@@ -15,7 +14,6 @@
       Update Profile
     </h2>
 
-    <!-- Django messages -->
     {% if messages %} {% for message in messages %}
     <div
       class="mb-4 rounded-md px-4 py-3 text-sm text-white"
@@ -34,11 +32,9 @@
     </div>
     {% endfor %} {% endif %}
 
-    <!-- Update Form -->
-    <form method="post" enctype="multipart/form-data" class="space-y-5">
+    <form method="post"  action="{% url 'accounts:accounts_update' %}" enctype="multipart/form-data" class="space-y-5">
       {% csrf_token %}
 
-      <!-- Full Name -->
       <div>
         <label
           class="block text-sm mb-1"
@@ -49,7 +45,6 @@
         {{ form.full_name }}
       </div>
 
-      <!-- Username -->
       <div>
         <label
           class="block text-sm mb-1"
@@ -59,8 +54,6 @@
         </label>
         {{ form.username }}
       </div>
-
-      <!-- Email -->
       <div>
         <label
           class="block text-sm mb-1"
@@ -71,7 +64,6 @@
         {{ form.email }}
       </div>
 
-      <!-- Avatar Upload -->
       <div>
         <label
           class="block text-sm mb-1"
@@ -82,7 +74,6 @@
         {{ form.avatar }}
       </div>
 
-      <!-- Optional: Change Password -->
       <div x-data="{ showPassword1: false, showPassword2: false }">
         <label
           class="block text-sm mb-1"
@@ -108,7 +99,7 @@
             class="absolute right-2 top-2 text-sm"
             style="color: var(--color-text-muted)"
           >
-            👁
+            <ion-icon name="eye-outline"></ion-icon>
           </button>
         </div>
 
@@ -136,12 +127,11 @@
             class="absolute right-2 top-2 text-sm"
             style="color: var(--color-text-muted)"
           >
-            👁
+            <ion-icon name="eye-outline"></ion-icon>
           </button>
         </div>
       </div>
 
-      <!-- Submit Button -->
       <button
         type="submit"
         class="w-full py-2 rounded-md font-semibold text-white transition"

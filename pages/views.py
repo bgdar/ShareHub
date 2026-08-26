@@ -3,22 +3,23 @@ from django.http import HttpResponseNotFound, HttpResponse
 from django.http import HttpRequest
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
-
 from django.http import HttpRequest
 
-# Create your views here.
+from fileApi.views import JenisFIle
+
 
 # ---- Pages ---
 
 
 def dashboard(request: HttpRequest):
-    """HALAMAN UTAMA"""
+    """halaman utama"""
     context = {"title": "dahsboard"}
     return render(request, "pages/dashboard.html", context=context)
 
-
 # @login_required(login_url=reverse_lazy('accounts_login')) #penamaan
 # jika di belum login arahkan ke sini
+
+
 @login_required(login_url="/accounts/login/")  # lansung url
 def home(request: HttpRequest):
     context = {"title": "Home"}
@@ -37,7 +38,14 @@ def upload_file(request: HttpRequest):
 
 @login_required(login_url="accounts:accounts_login")
 def katagory_file(request: HttpRequest):
-    return render(request, "file/file-katagory.html")
+    "Selected POST atau mengambil datanya ada di Module Api"
+
+    if request.method == "GET":
+        enum_kategori = {e.name: e.value for e in JenisFIle}
+        context = {
+            "jenis_file": enum_kategori,
+        }
+        return render(request, "file/file-katagory.html", context=context)
 
 
 @login_required(login_url="accounts:accounts_login")

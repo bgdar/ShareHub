@@ -1,215 +1,259 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{ title|default:"ShareHub" }}</title>
 
-<head>
-  <meta charset="UTF-8" />
-  <title>{{ title|default:"My Django App" }}</title>
+    <!-- Tailwind CSS -->
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome  -->
+    <!-- <link -->
+    <!--   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" -->
+    <!--   rel="stylesheet" -->
+    <!-- /> -->
+    <!---->
+    <!-- Ionicons -->
+    <!-- web = https://ionic.io/ionicons -->
+    <script
+      type="module"
+      src="https://unpkg.com/ionicons@8.0.13/dist/ionicons/ionicons.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://unpkg.com/ionicons@8.0.13/dist/ionicons/ionicons.js"
+    ></script>
 
-  <!-- Font Awesome (opsional) -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
-  <!-- Ionicons -->
-  <!-- web = https://ionic.io/ionicons -->
-  <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/ionicons/8.0.13/esm/ionicons.min.js"></script>
+    <!-- Alpine js -->
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"
+    ></script>
 
-  <!-- Alpine js -->
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
-
-  <style>
-    :root {
-      /* =========================
+    <style>
+      :root {
+        /* 
      Brand & Primary Colors
-     ========================= */
-      --color-header-bg: #45758a;
-      /* Background header */
-      --color-title-text: #f0c85e;
-      /* Judul utama (Django administration) */
-      --color-primary: #2563eb;
-      /* Link / tombol aktif */
-      --color-primary-hover: #3b82f6;
-      /* Hover link / tombol */
+      */
+        --color-header-bg: #45758a;
+        /* Background header */
+        --color-title-text: #f0c85e;
+        /* Judul utama (Django administration) */
+        --color-primary: #2563eb;
+        /* Link / tombol aktif */
+        --color-primary-hover: #3b82f6;
+        /* Hover link / tombol */
 
-      /* =========================
+        /* 
      Base Backgrounds
-     ========================= */
-      --color-bg-main: #f9fafb;
-      /* Background utama halaman */
-      --color-bg-form: #ffffff;
-      /* Background form / card */
-      --color-bg-secondary: #374151;
-      /* Secondary background */
-      --color-bg-hover: #e5e7eb;
-      /* Hover ringan */
+      */
+        --color-bg-main: #f9fafb;
+        /* Background utama halaman */
+        --color-bg-form: #ffffff;
+        /* Background form / card */
+        --color-bg-secondary: #374151;
+        /* Secondary background */
+        --color-bg-hover: #e5e7eb;
+        /* Hover ringan */
 
-      /* =========================
+        /* 
      Text Colors
-     ========================= */
-      --color-text-main: #000000;
-      /* Teks utama */
-      --color-text-header: #1f2937;
-      /* Teks header / sidebar */
-      --color-text-secondary: #374151;
-      /* Teks sekunder */
-      --color-text-muted: #9ca3af;
-      /* Placeholder / hint */
+      */
+        --color-text-main: #000000;
+        /* Teks utama */
+        --color-text-header: #1f2937;
+        /* Teks header / sidebar */
+        --color-text-secondary: #374151;
+        /* Teks sekunder */
+        --color-text-muted: #9ca3af;
+        /* Placeholder / hint */
 
-      /* =========================
+        /* 
      Borders & Inputs
-     ========================= */
-      --color-border-main: #000000;
-      /* Border utama */
-      --color-border-soft: #d1d5db;
-      /* Border/input default */
-      --color-border-light: #e5e7eb;
-      /* Border halus */
+      */
+        --color-border-main: #000000;
+        /* Border utama */
+        --color-border-soft: #d1d5db;
+        /* Border/input default */
+        --color-border-light: #e5e7eb;
+        /* Border halus */
 
-      /* =========================
+        /* 
      Buttons
-     ========================= */
-      --color-button-login: #5a7b8a;
-      /* Tombol login */
-      --color-button-login-hover: #45758a;
-      /* Hover tombol login */
+      */
+        --color-button-login: #5a7b8a;
+        /* Tombol login */
+        --color-button-login-hover: #45758a;
+        /* Hover tombol login */
 
-      /* =========================
+        /* 
      Success (Positive State)
-     ========================= */
-      --color-success: #16a34a;
-      /* Success utama */
-      --color-success-soft: #22c55e;
-      /* Background success ringan */
-      --color-success-alt: #059669;
-      /* Status sukses tambahan */
-      --color-success-emerald: #10b981;
-      /* Aksi positif utama */
+      */
+        --color-success: #16a34a;
+        /* Success utama */
+        --color-success-soft: #22c55e;
+        /* Background success ringan */
+        --color-success-alt: #059669;
+        /* Status sukses tambahan */
+        --color-success-emerald: #10b981;
+        /* Aksi positif utama */
 
-      /* =========================
+        /* 
      Error (Danger State)
-     ========================= */
-      --color-error: #dc2626;
-      /* Error utama */
-      --color-error-soft: #ef4444;
-      /* Background error ringan */
+      */
+        --color-error: #dc2626;
+        /* Error utama */
+        --color-error-soft: #ef4444;
+        /* Background error ringan */
 
-      /* =========================
+        /* 
      Warning
-     ========================= */
-      --color-warning: #f59e0b;
-      /* Warning utama */
-      --color-warning-soft: #fbbf24;
-      /* Background warning */
+      */
+        --color-warning: #f59e0b;
+        /* Warning utama */
+        --color-warning-soft: #fbbf24;
+        /* Background warning */
 
-      /* =========================
+        /* 
      Info
-     ========================= */
-      --color-info: #0ea5e9;
-      /* Info utama */
-      --color-info-soft: #38bdf8;
-      /* Background info ringan */
+      */
+        --color-info: #0ea5e9;
+        /* Info utama */
+        --color-info-soft: #38bdf8;
+        /* Background info ringan */
 
-      /* =========================
+        /* 
      Accent
-     ========================= */
-      --color-accent-purple: #9333ea;
-      /* Badge / highlight */
-    }
-  </style>
-</head>
+      */
+        --color-accent-purple: #9333ea;
+        /* Badge / highlight */
+      }
+    </style>
+  </head>
 
-<body class="bg-gray-100 min-h-screen">
-  <header class="bg-white shadow-md">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between h-16 items-center">
-        <!-- Logo / Brand -->
-        <div class="flex items-center space-x-2">
-          <a href="/">
-            <span class="text-xl font-bold"> ShareHub</span>
-          </a>
-        </div>
-
-        <!-- Navigation -->
-        <nav class="flex space-x-4">
-          <a href="{% url 'page_home' %}" class="flex items-center gap-1 px-3 py-2 rounded hover:bg-gray-200">
-            <ion-icon name="home-outline"></ion-icon> Home
-          </a>
-          <a href="{% url 'hub'  %}" class="flex items-center gap-1 px-3 py-2 rounded hover:bg-gray-200">
-            <ion-icon name="people-outline"></ion-icon> Community
-          </a>
-
-          <!-- DROPDOWN MENU -->
-          <div x-data="{ open: false }" class="relative">
-            <!-- TOGGLE BUTTON -->
-            <button @click="open = !open" @click.outside="open = false"
-              class="flex items-center gap-2 px-4 py-2 rounded-md bg-[var(--color-bg-form)] border border-[var(--color-border-light)] text-[var(--color-text-header)] hover:bg-[var(--color-bg-hover)] transition">
-              <ion-icon name="menu-outline" class="text-lg"></ion-icon>
-              <span class="text-sm font-medium">File Menu</span>
-              <ion-icon name="chevron-down-outline" class="text-sm"></ion-icon>
-            </button>
-
-            <!-- DROPDOWN CONTENT -->
-            <div x-show="open" x-transition
-              class="absolute right-0 mt-2 w-56 rounded-lg shadow-lg bg-[var(--color-bg-form)] border border-[var(--color-border-light)] z-50">
-              <!-- UPLOAD FILE -->
-              <a href="{% url 'page_file_upload' %}"
-                class="flex items-center gap-3 px-4 py-3 text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] transition">
-                <ion-icon name="cloud-upload-outline" class="text-[var(--color-info)]"></ion-icon>
-                Upload File
-              </a>
-
-              <!-- FILE MANAGEMENT -->
-              <a href="{% url 'page_file_katagory' %}"
-                class="flex items-center gap-3 px-4 py-3 text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] transition">
-                <ion-icon name="folder-open-outline" class="text-[var(--color-warning)]"></ion-icon>
-                File catagory
-              </a>
-              <a href="{% url 'page_history_file' %}"
-                class="flex items-center gap-3 px-4 py-3 text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] transition">
-                <ion-icon name="folder-open-outline" class="text-[var(--color-warning)]"></ion-icon>
-                File History
-              </a>
-            </div>
+  <body class="bg-gray-100 min-h-screen">
+    <header class="bg-white shadow-md">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16 items-center">
+          <!-- Logo / Brand -->
+          <div class="flex items-center space-x-2">
+            <a href="/" class="flex justify-center gap-1.5">
+              <ion-icon name="document-attach-outline"></ion-icon>
+              <span class="text-xl font-bold"> ShareHub</span>
+            </a>
           </div>
-        </nav>
 
-        <div class="p-2 text-center">
-          <a href="{% url 'accounts:accounts_profile' %}">
-            <i class="fa-solid fa-user"></i></a>
+          <!-- Navigation -->
+          <nav class="flex space-x-4">
+            <a
+              href="{% url 'page_home' %}"
+              class="flex items-center gap-1 px-3 py-2 rounded hover:bg-gray-200"
+            >
+              <ion-icon name="home-outline"></ion-icon> Home
+            </a>
+            <a
+              href="{% url 'hub'  %}"
+              class="flex items-center gap-1 px-3 py-2 rounded hover:bg-gray-200"
+            >
+              <ion-icon name="people-outline"></ion-icon> Community
+            </a>
+
+            <div x-data="{ open: false }" class="relative">
+              <button
+                @click="open = !open"
+                @click.outside="open = false"
+                class="flex items-center gap-2 px-4 py-2 rounded-md bg-[var(--color-bg-form)] border border-[var(--color-border-light)] text-[var(--color-text-header)] hover:bg-[var(--color-bg-hover)] transition"
+              >
+                <ion-icon name="menu-outline" class="text-lg"></ion-icon>
+                <span class="text-sm font-medium">File Menu</span>
+                <ion-icon
+                  name="chevron-down-outline"
+                  class="text-sm"
+                ></ion-icon>
+              </button>
+
+              <div
+                x-show="open"
+                x-transition
+                class="absolute right-0 mt-2 w-56 rounded-lg shadow-lg bg-[var(--color-bg-form)] border border-[var(--color-border-light)] z-50"
+              >
+                <a
+                  href="{% url 'page_file_upload' %}"
+                  class="flex items-center gap-3 px-4 py-3 text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] transition"
+                >
+                  <ion-icon
+                    name="cloud-upload-outline"
+                    class="text-[var(--color-info)]"
+                  ></ion-icon>
+                  Upload File
+                </a>
+
+                <a
+                  href="{% url 'page_file_katagory' %}"
+                  class="flex items-center gap-3 px-4 py-3 text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] transition"
+                >
+                  <ion-icon
+                    name="folder-open-outline"
+                    class="text-[var(--color-warning)]"
+                  ></ion-icon>
+                  File catagory
+                </a>
+                <a
+                  href="{% url 'page_history_file' %}"
+                  class="flex items-center gap-3 px-4 py-3 text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] transition"
+                >
+                  <ion-icon
+                    name="folder-open-outline"
+                    class="text-[var(--color-warning)]"
+                  ></ion-icon>
+                  File History
+                </a>
+              </div>
+            </div>
+          </nav>
+
+          <div class="p-2 text-center">
+            <a href="{% url 'accounts:accounts_profile' %}">
+              <!-- <i class="fa-solid fa-user"></i -->
+              <ion-icon name="person-outline"></ion-icon>
+              ></a
+            >
+          </div>
         </div>
       </div>
-    </div>
-  </header>
-  <!-- nantik tinggal opy dan buat versi mobile untk header nya  -->
+    </header>
+    <!-- nantik tinggal opy dan buat versi mobile untk header nya  -->
 
-  <!-- Django Messages start-->
-
-  {% if messages %} {% for message in messages %}
-  <div class="mb-4 rounded-md px-4 py-3 text-sm text-white" style="background-color:
+    <!-- Django Messages start-->
+    {% if messages %} {% for message in messages %}
+    <div
+      class="mb-4 rounded-md px-4 py-3 text-sm text-white"
+      style="background-color:
            {% if 'info' in message.tags %} var(--color-info-soft)
            {% elif 'danger' in message.tags %} var(--color-error-soft)
            {% elif 'success' in message.tags %} var(--color-success-soft)
            {% else %} var(--color-warning-soft)
-           {% endif %};">
-    {{ message }}
-  </div>
-  {% endfor %} {% endif %}
-
-  <!-- Django Messages End-->
-
-  <!-- MAIN CONTENT -->
-  <main class="max-w-7xl mx-auto p-4">
-    {% block content %}
-    <!-- Konten halaman akan dimasukkan di sini -->
-    {% endblock %}
-  </main>
-
-  <!-- FOOTER -->
-  <footer class="bg-white mt-8 shadow-inner">
-    <div class="max-w-7xl mx-auto p-4 text-center text-gray-500 text-sm">
-      &copy; {{ year|default:2025 }} ShareHub. All rights reserved.
+           {% endif %};"
+    >
+      {{ message }}
     </div>
-  </footer>
-</body>
+    {% endfor %} {% endif %}
 
+    <!-- Django Messages End-->
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-7xl mx-auto p-4">
+      {% block content %}
+      <!-- Konten halaman akan dimasukkan di sini -->
+      {% endblock %}
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white mt-8 shadow-inner">
+      <div class="max-w-7xl mx-auto p-4 text-center text-gray-500 text-sm">
+        &copy; {{ year|default:2025 }} ShareHub. All rights reserved.
+      </div>
+    </footer>
+  </body>
 </html>

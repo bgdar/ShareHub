@@ -1,0 +1,7 @@
+commit #3 , finish fitur utama upload file , dan hub
+- update : update pada /hub/views dan database /hub/models/ untuk menyesuikan comunity
+- pada blok hub , mendesain halama comunity , bisa chat pesan biaasa dan bisa pesan dengan file , menambhakna comentar dan menambahkan filter
+- desian halaman comunity di hub.html
+- update icon dengan menggunakan ionicons
+- poblem : halaman profile masih perlu di perbaiki dan di tambah 
+- poblem : halaman home masih perlu di tambah

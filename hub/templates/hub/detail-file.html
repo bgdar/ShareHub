@@ -1,0 +1,148 @@
+<!-- lihat isi file secara detailt , ini  salah 1 file yang di pilih di hub  -->
+
+{% extends "layouts.html" %} {% block content %}
+<div class="max-w-4xl mx-auto p-4 space-y-6">
+  <!-- Tombol Kembali -->
+  <div>
+    <a
+      href="javascript:history.back()"
+      class="inline-flex items-center space-x-2 text-sm text-gray-600 hover:text-blue-600 font-medium transition-colors"
+    >
+      <svg
+        class="w-4 h-4"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M10 19l-7-7m0 0l7-7m-7 7h18"
+        ></path>
+      </svg>
+      <span>Kembali</span>
+    </a>
+  </div>
+
+  <div
+    class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden"
+  >
+    <div
+      class="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50"
+    >
+      <div class="flex items-center space-x-3">
+        <div
+          class="w-12 h-12 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-sm"
+        >
+          {{ hub.user.username|slice:":2"|upper }}
+        </div>
+        <div>
+          <h2 class="font-bold text-gray-800 text-lg">
+            {{ hub.user.username }}
+          </h2>
+          <p class="text-xs text-gray-500">
+            {{ hub.created_at|date:"d M Y, H:i" }} WIB
+          </p>
+        </div>
+      </div>
+
+      {% if hub.file_path %}
+      <a
+        href="/media/{{ hub.file_path }}"
+        download
+        class="inline-flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm transition-all"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+          ></path>
+        </svg>
+        <span>Unduh File</span>
+      </a>
+      {% endif %}
+    </div>
+
+    <!-- Body: Pesan Hub -->
+    <div class="p-6 space-y-6">
+      <div>
+        <h3
+          class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1"
+        >
+          Pesan / Deskripsi
+        </h3>
+        <p class="text-gray-800 text-base leading-relaxed">{{ hub.message }}</p>
+      </div>
+
+      {% if hub.file_path %}
+      <div class="space-y-3 pt-4 border-t border-gray-100">
+        <h3
+          class="text-xs font-semibold text-gray-400 uppercase tracking-wider"
+        >
+          Preview Content
+        </h3>
+
+        <!-- Jika Gambar (.jpg, .png, dll) -->
+        {% if file_extension in '.jpg .jpeg .png .gif .webp' %}
+        <div
+          class="rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex justify-center p-4"
+        >
+          <img
+            src="/media/{{ hub.file_path }}"
+            alt="Preview"
+            class="max-h-96 rounded object-contain"
+          />
+        </div>
+
+        <!-- Jika File Teks / Kode Script -->
+        {% elif file_content %}
+        <div
+          class="bg-gray-900 rounded-lg p-4 overflow-x-auto text-gray-100 font-mono text-sm leading-relaxed border border-gray-800"
+        >
+          <pre class="whitespace-pre-wrap"><code>{{ file_content }}</code></pre>
+        </div>
+
+        <!-- Untuk Tipe File Lain (PDF, DOCX, ZIP, dll) -->
+        {% else %}
+        <div
+          class="flex items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded-lg"
+        >
+          <div class="flex items-center space-x-3">
+            <svg
+              class="w-8 h-8 text-blue-500"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+              ></path>
+            </svg>
+            <div>
+              <p class="text-sm font-semibold text-gray-700">
+                {{ hub.file_path }}
+              </p>
+              <p class="text-xs text-gray-400">
+                Preview langsung tidak tersedia untuk format file ini.
+              </p>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

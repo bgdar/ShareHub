@@ -1,108 +1,424 @@
 {% extends "layouts.html" %}
 {% block content %}
- <div class="grid grid-cols-12 gap-4 p-4" >
-   
-
-   <div class="col-span-9 flex flex-col " x-data="hubData()">  
-
-
-<div class="col-span-9 flex flex-col space-y-4"
-     x-data="hubData()">
-
-  <template x-for="hub in hubs" :key="hub.pk">
-    <main class="bg-white shadow-md rounded-lg p-4 space-y-3">
-
-      <header class="flex justify-between items-center">
-        <div>
-          <h2 class="text-xl font-semibold"
-              x-text="hub.fields.message"></h2>
-
-          <!-- <p class="text-sm text-gray-500" -->
-             <!-- x-text="hub.fields.file_path"></p> -->
-           <!-- tampa img file dengan path static dan saat di click bisa download_file -->
-           <p>file : </p>
+<div class="max-w-6xl mx-auto grid grid-cols-12 gap-6 p-4 bg-gray-50 min-h-screen items-start" x-data="hubManager()">
+  
+  <!-- KOLOM KIRI: DAFTAR POSTINGAN -->
+<div class="col-span-12 lg:col-span-8 space-y-6"> 
+  <template x-for="(hub, index) in filteredHubs" :key="hub.pk">
+    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-5 space-y-4 hover:shadow-md transition-shadow duration-200">
+      
+      <header class="flex justify-between items-start">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold shadow-sm"
+               x-text="hub.fields.user_username ? hub.fields.user_username.substring(0, 2).toUpperCase() : 'U'">
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-800" x-text="hub.fields.user_username || 'Anonymous'"></h3>
+            <p class="text-xs text-gray-400" x-text="formatDate(hub.fields.created_at)"></p>
+          </div>
         </div>
-
-        <button class="bg-blue-600 text-white px-3 py-1 rounded">
-          + Ikuti
-        </button>
+<!-- Hanya tampil jika user yang membuat postingan BUKAN user yang sedang login -->
+<template x-if="hub.fields.user !== currentUser.id">
+  <a :href="'/follow/' + hub.fields.user + '/'" 
+     class="text-sm font-medium text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200 transition-colors inline-block">
+    + Ikuti
+  </a>
+</template>
       </header>
 
-      <section class="border-t pt-3">
-        <h3 class="font-bold">💬 Komentar</h3>
-        <p class="text-gray-400 italic">Belum ada komentar</p>
+      <section class="space-y-3">
+        <p class="text-gray-700 text-lg leading-relaxed" x-text="hub.fields.message"></p>
+        
+        <template x-if="hub.fields.file_path">
+          <div class="flex items-center justify-between bg-gray-50 border border-gray-150 rounded-lg p-3 hover:bg-gray-100 transition-colors">
+            
+            <div class="flex items-center space-x-3 min-w-0">
+           <ion-icon name="document-text-outline"></ion-icon>
+              <span class="text-sm font-medium text-gray-600 truncate" x-text="getFileNameOnly(hub.fields.file_path)"></span>
+            </div>
+
+            <!-- Tombol Unduh & Lihat Detail -->
+            <div class="flex items-center space-x-2 flex-shrink-0">
+            <a :href=" cleanFileId(hub.pk) +'/'" 
+                class="text-xs bg-blue-50 text-blue-600 border border-blue-200 px-3 py-1.5 rounded-md hover:bg-blue-100 font-medium transition-all">
+                Lihat Detail
+              </a>
+              <a :href="'/media/' + hub.fields.file_path" download class="text-xs bg-white text-gray-700 border border-gray-300 px-3 py-1.5 rounded-md hover:bg-gray-50 shadow-sm font-medium transition-all">
+                Unduh
+              </a>
+            </div>
+
+          </div>
+        </template>
       </section>
 
-    </main>
+      <!-- seksi  (jika tipe file) -->
+      <template x-if="hub.type === 'file'">
+        <section class="border-t border-gray-100 pt-4 space-y-4">
+          <button @click="toggleComments(hub.pk)" class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 font-semibold text-sm focus:outline-none transition-colors">
+           <ion-icon name="pricetags-outline"></ion-icon>
+            <span x-text="'Diskusi (' + (hub.comments ? hub.comments.length : 0) + ')'"></span>
+          </button>
+          
+          <div x-show="showComments[hub.pk]" x-collapse class="space-y-3 pt-2">
+            <div class="space-y-2 max-h-60 overflow-y-auto pr-1">
+              <template x-for="comment in hub.comments" :key="comment.pk">
+                <div class="bg-gray-50 rounded-lg p-3 text-sm space-y-1">
+                  <div class="flex justify-between items-center">
+                    <span class="font-semibold text-gray-800" x-text="comment.fields.user_username"></span>
+                    <span class="text-xs text-gray-400" x-text="formatDate(comment.fields.created_at)"></span>
+                  </div>
+                  <p class="text-gray-600" x-text="comment.fields.comment"></p>
+                </div>
+              </template>
+              
+              <template x-if="!hub.comments || hub.comments.length === 0">
+                <p class="text-sm text-gray-400 italic bg-gray-50 p-3 rounded-lg text-center">Belum ada komentar di postingan ini.</p>
+              </template>
+            </div>
+
+            <form @submit.prevent="submitComment(hub.pk, index)" class="flex gap-2">
+              <input type="text" 
+                     x-model="newComments[hub.pk]" 
+                     placeholder="Tulis komentar..." required
+                     class="flex-1 border border-gray-300 px-3 py-2 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+              <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex-shrink-0">
+                Kirim
+              </button>
+            </form>
+          </div>
+        </section>
+      </template>
+
+    </div>
   </template>
 
+  <!-- State jika database awal memang kosong -->
+  <template x-if="!hubs || hubs.length === 0">
+    <div class="bg-white border border-gray-200 rounded-xl p-12 text-center space-y-3 shadow-sm">
+      <div class="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto">
+      
+<ion-icon name="inbox-outline" class="text-3xl text-current" stroke-width="2"></ion-icon>
+
+      </div>
+      <h3 class="text-lg font-bold text-gray-800">Belum Ada Pesan di Hub</h3>
+      <p class="text-sm text-gray-500 max-w-sm mx-auto">Jadilah yang pertama membuat postingan atau membagikan file.</p>
+    </div>
+  </template>
+
+  <!-- State jika pencarian filter tidak cocok (hubs ada, tapi filteredHubs kosong) -->
+  <template x-if="hubs.length > 0 && filteredHubs.length === 0">
+    <div class="bg-white border border-gray-200 rounded-xl p-12 text-center space-y-3 shadow-sm">
+      <div class="w-16 h-16 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center mx-auto">
+     
+<ion-icon name="search" class="text-3xl text-current"></ion-icon>
+
+      </div>
+      <h3 class="text-lg font-bold text-gray-800">Tidak Ada Hasil</h3>
+      <p class="text-sm text-gray-500 max-w-sm mx-auto">Tidak ada postingan yang sesuai dengan filter pencarian Anda.</p>
+    </div>
+  </template>
 </div>
 
 
+<!-- KOLOM KANAN: FORM PUBLISH & FILTER -->
+<div class="col-span-12 lg:col-span-4 space-y-6 sticky top-4 h-fit self-start">
+  <!-- CARD 1FORM PUBLISH -->
+  <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-5 space-y-4">
+    <h2 class="text-lg font-bold text-gray-800 border-b border-gray-100 pb-2">Buat Postingan Baru</h2>
     
+    <!-- <form action="% url 'api_add_hud_file' %}" method="POST" class="space-y-4"> -->
+    <form :action="selctedPublic" method="POST" class="space-y-4">
+      {% csrf_token %}
+      
+      <input type="hidden" name="upload_source" :value="uploadSource">
+      
+      <div class="flex flex-col space-y-1.5">
+        <label class="text-xs font-semibold text-gray-600 tracking-wide uppercase">Pesan</label>
+        <textarea name="message" required rows="3"
+                  placeholder="Apa yang ingin Anda bagikan hari ini?"
+                  class="w-full border border-gray-300 p-2.5 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none"></textarea>
+      </div>
 
-<div class="col-span-3 shadow-md p-4"
-     x-data="apiData()">
+      <div class="space-y-3 pt-1 border-t border-gray-100">
+        <label class="text-xs font-semibold text-gray-600 tracking-wide uppercase block">Opsi Lampiran</label>
+        
+        <div class="grid grid-cols-2 gap-2 p-1 bg-gray-100 rounded-lg">
+          <button type="button" 
+                  @click="setUploadSource('file')" 
+                  :class="uploadSource === 'file' ? 'bg-white shadow-sm text-blue-600 font-semibold' : 'text-gray-500 hover:text-gray-700'"
+                  class="py-1.5 text-xs rounded-md transition-all text-center">
+            Lampirkan File
+          </button>
+          <button type="button" 
+                  @click="setUploadSource('chat')" 
+                  :class="uploadSource === 'chat' ? 'bg-white shadow-sm text-blue-600 font-semibold' : 'text-gray-500 hover:text-gray-700'"
+                  class="py-1.5 text-xs rounded-md transition-all text-center">
+            Chat Biasa
+          </button>
+        </div>
 
-  <form action="{% url 'api_hub_upload' %}"
-        method="POST"
-        class="space-y-4 flex gap-2 items-center justify-center">
-    {% csrf_token %}
-     <div class="flex flex-col items-center w-full h-full">
- <label>Message</label>
-    <input type="text"
-           name="message"
-           class="w-full border p-2 rounded" required>
+        <div x-show="uploadSource === 'file'" class="flex flex-col space-y-1.5">
+          <div class="relative">
+            <select name="path_file"
+                    x-model="selectedFilePath"
+                    :disabled="uploadSource !== 'file'"
+                    class="w-full appearance-none bg-white border border-gray-300 p-2.5 pr-8 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all cursor-pointer text-gray-700">
+              <option value="">-- Pilih File Kamu --</option>
+              <template x-for="file in fileFiles" :key="file.id || file.file_path || file">
+                <option :value="getFileValue(file)" x-text="getFileNameDisplay(file)"></option>
+              </template>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+            
+<ion-icon name="chevron-down" class="text-base text-current"></ion-icon>
 
-    <button class="bg-blue-600 text-white w-full py-2 rounded">
-      Publish
-    </button>
-     </div>
+            </div>
+          </div>
+        </div>
 
-   
-     <div class="flex flex-col items-center w-full h-full">
-  <label>Path File</label>
+        <div x-show="uploadSource === 'chat'" class="bg-blue-50 border border-blue-100 rounded-lg p-3 text-xs text-blue-700">
+          Pesan akan dikirim langsung ke komunitas tanpa melampirkan file.
+        </div>
+      </div>
 
-    <select name="path_file" required
-            class="w-full border p-2 rounded">
-      <option value="">Pilih File</option>
+      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg shadow-sm hover:shadow transition-all text-sm flex justify-center items-center space-x-2">
+        <span>Simpan ke Hub</span>
+      </button>
+    </form>
+  </div>
 
-      <template x-for="file in files" :key="file.id">
-        <option :value="file.id"
-                x-text="file.fileName + ' (' + file.file_size + ' B)'">
-        </option>
-      </template>
-    </select>
+  <!-- CARD 2: FILTER BOX (BERADA PRESISE DI BAWAH CARD PUBLISH) -->
+  <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-5 space-y-4">
+    <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+      <h2 class="text-lg font-bold text-gray-800">Filter Postingan</h2>
+      <button type="button" 
+              @click="resetFilter()" 
+              x-show="filterUser || filterCategory || filterDate"
+              class="text-xs text-blue-600 hover:underline font-medium">
+        Reset Filter
+      </button>
+    </div>
+
+    <div class="space-y-4">
+      <div class="flex flex-col space-y-1.5">
+        <label class="text-xs font-semibold text-gray-600 tracking-wide uppercase">Nama User</label>
+        <div class="relative">
+          <input type="text" 
+                 x-model="filterUser" 
+                 placeholder="Cari nama pembuat..." 
+                 class="w-full border border-gray-300 p-2.5 pl-9 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+        
+<ion-icon name="person" class="text-base text-current"></ion-icon>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col space-y-1.5">
+        <label class="text-xs font-semibold text-gray-600 tracking-wide uppercase">Kategori / Ekstensi File</label>
+        <div class="relative">
+          <select x-model="filterCategory"
+                  class="w-full appearance-none bg-white border border-gray-300 p-2.5 pr-8 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all cursor-pointer text-gray-700">
+            <option value="">-- Semua Kategori --</option>
+            <option value="chat">Chat Biasa (Tanpa File)</option>
+            <option value="document">Dokumen (.pdf, .doc, .txt)</option>
+            <option value="code">Script / Code (.py, .js, .json, .html)</option>
+            <option value="image">Gambar (.jpg, .png, .jpeg)</option>
+            <option value="archive">Arsip (.zip, .rar)</option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+          
+<ion-icon name="chevron-down-outline" class="text-base text-current"></ion-icon>
+
+          </div>
+        </div>
+      </div>
+      <div class="flex flex-col space-y-1.5">
+        <label class="text-xs font-semibold text-gray-600 tracking-wide uppercase">Tanggal Spesifik</label>
+        <input type="date" 
+               x-model="filterDate" 
+               class="w-full border border-gray-300 p-2.5 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-gray-700">
+      </div>
+    </div>
+  </div>
+
 </div>
-  
-
-  </form>
 </div>
 
-
- <script>
-
- // langsung return agar ti terima oleh alpine
-function hubData() {
+<script>
+function hubManager() {
   return {
-    hubs: JSON.parse('{{ data_hub|escapejs }}')
-  }
-}
+    hubs: JSON.parse('{{ data_hub|escapejs }}') || [],
+    fileFiles: [],
+    newComments: {},
+    showComments: {},
+    uploadSource: 'file',
+    selectedFilePath: '',
 
-function apiData() {
-  return {
-    files: [],
+
+urlApiAddHudFile : `{% url 'api_add_hud_file' %}`,
+    urlApiHubMessage : `{% url 'api_hub_message' %}`,
+    urlDetailFile: `{% url 'hub_detail_file' id=0 %}`,       // harus ada default id    
+
+    selctedPublic : "", // seleksi jenis push public messgase biasa atau dengan file 
+
+    currentUser: {
+      id: {{ request.user.id|default:"null" }},
+      username: "{{ request.user.username|escapejs }}"
+    },
+
+    // filter state 
+    filterUser: '',
+    filterCategory: '',
+    filterDate: '',
 
     init() {
-      fetch("/api/hub/list/")
+
+      this.selctedPublic = this.urlApiAddHudFile; // default
+
+      fetch("/hub/api/list/")
         .then(res => res.json())
         .then(data => {
- console,info("data list: ",data)
-          this.files = data
+          this.fileFiles = data;
         })
+        .catch(err => console.error("Gagal memuat list file:", err));
+    },
+
+    setUploadSource(source) {
+      this.uploadSource = source;
+      if(source === "file") {
+      this.selctedPublic = this.urlApiAddHudFile; 
+      }
+
+      if (source === 'chat') {
+        this.selctedPublic = this.urlApiHubMessage; 
+        this.selectedFilePath = '';
+      }
+    },
+
+    toggleComments(hubId) {
+      this.showComments[hubId] = !this.showComments[hubId];
+    },
+
+    submitComment(hubId, index) {
+      const commentText = this.newComments[hubId];
+      if (!commentText || commentText.trim() === '') return;
+
+      fetch(`/hub/api/comment/${hubId}/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ comment: commentText })
+      })
+      .then(async res => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Gagal mengirim komentar");
+        return data;
+      })
+      .then(savedComment => {
+        if (!this.hubs[index].comments) {
+          this.hubs[index].comments = [];
+        }
+        this.hubs[index].comments.push(savedComment);
+        this.newComments[hubId] = '';
+      })
+      .catch(err => alert(err.message));
+    },
+
+    formatDate(dateString) {
+      if(!dateString) return '';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('id-ID', { 
+        day: 'numeric', 
+        month: 'short', 
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    },
+  
+    // method untuk membersihkan id file 
+  cleanFileId(id){
+  // Jika id berupa angka murni, langsung kembalikan nilainya
+    if (!isNaN(id)) return id; 
+    console.info(this.urlDetailFile);
+   // karena default adla 0/ dan ada hub_id maka ganti 
+    return `${this.urlDetailFile.replace('/0','')}${Number(id.replace('hub', '').replace('_', ''))}`;
+  },
+
+// getter konten dengan filter real-time
+    get filteredHubs() {
+      return this.hubs.filter(hub => {
+        const fields = hub.fields || {};
+        
+        //  Filter Nama User
+        if (this.filterUser.trim() !== '') {
+          const username = (fields.user_username || '').toLowerCase();
+          if (!username.includes(this.filterUser.toLowerCase().trim())) {
+            return false;
+          }
+        }
+
+        // filter Kategori File
+        if (this.filterCategory !== '') {
+          const filePath = fields.file_path || '';
+          const ext = filePath.split('.').pop().toLowerCase();
+
+          if (this.filterCategory === 'chat') {
+            if (filePath !== '') return false;
+          } else if (this.filterCategory === 'document') {
+            if (!['pdf', 'doc', 'docx', 'txt', 'csv'].includes(ext)) return false;
+          } else if (this.filterCategory === 'code') {
+            if (!['py', 'js', 'json', 'html', 'css', 'php', 'ts'].includes(ext)) return false;
+          } else if (this.filterCategory === 'image') {
+            if (!['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return false;
+          } else if (this.filterCategory === 'archive') {
+            if (!['zip', 'rar', '7z', 'tar', 'gz'].includes(ext)) return false;
+          }
+        }
+
+        //Filter Tanggal Spesifik (YYYY-MM-DD)
+        if (this.filterDate !== '') {
+          if (!fields.created_at) return false;
+          // Mengambil format YYYY-MM-DD dari string datetime ISO
+          const postDate = fields.created_at.substring(0, 10);
+          if (postDate !== this.filterDate) {
+            return false;
+          }
+        }
+
+        return true;
+      });
+    },
+
+    resetFilter() {
+      this.filterUser = '';
+      this.filterCategory = '';
+      this.filterDate = '';
+    },
+
+
+    getFileNameOnly(path) {
+      return path ? path.split('/').pop() : '';
+    },
+
+    // Helper Fungsi fleksibel untuk ekstrak nama file dari JSON API
+    getFileValue(file) {
+      if (typeof file === 'string') return file;
+      return file.file_path || file.fileName || file.file_name || '';
+    },
+
+    getFileNameDisplay(file) {
+      const path = this.getFileValue(file);
+      const nameOnly = path ? path.split('/').pop() : 'File';
+      const sizeStr = file.file_size ? ` (${Math.round(file.file_size / 1024)} KB)` : '';
+      return nameOnly + sizeStr;
     }
   }
 }
 </script>
-
 {% endblock %}

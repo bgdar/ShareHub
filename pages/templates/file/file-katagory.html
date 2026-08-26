@@ -1,7 +1,69 @@
 {% extends "layouts.html" %} {% block content %}
 
-<div x-data="{ active: 'all' }" class="min-h-screen bg-[var(--color-bg-main)] px-6 py-8">
-  <!-- HEADER -->
+<!-- Letakkan ini di file-katagory.html -->
+{{ jenis_file|json_script:"jenis-file-data" }}
+
+<div x-data="{ 
+    /* Siapkan properti kosong terlebih dahulu */
+    file_type: {}, 
+
+    active: 'all',
+    isLoading: false,
+    data_file: [], 
+    
+    init() {
+        const jsonElement = document.getElementById('jenis-file-data');
+        if (jsonElement) {
+            this.file_type = JSON.parse(jsonElement.textContent);
+            console.log('Konstanta Enum Berhasil Dimuat:', this.file_type);
+        } else {
+            console.error('Elemen json_script tidak ditemukan!');
+        }
+    },
+    
+    async fetchCategory(type) {
+        this.active = type;
+        this.isLoading = true;
+        
+        try {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+            
+            // Buat URL dasar dengan placeholder 'PLACEHOLDER' di Django
+            const baseUrl = `{% url 'file_api_selected_file' type_selected='PLACEHOLDER' %}`; 
+            
+            // Ganti 'PLACEHOLDER' dengan variabel 'type' milik JavaScript
+            const url = baseUrl.replace('PLACEHOLDER', type);
+            
+            console.info('Dinamis url : ', url);
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrfToken
+                }
+            });
+            
+            if (!response.ok) throw new Error('Gagal memuat data');
+            
+            const data = await response.json();
+            console.log('Data berhasil diterima:', data);
+            
+            this.data_file = data;
+            
+        } catch (error) {
+            console.error('Error saat melakukan fetch:', error);
+        } finally {
+            this.isLoading = false;
+        }
+    }
+}" class="min-h-screen bg-[var(--color-bg-main)] px-6 py-8">
+
+
+
+  <!-- CSRF Token diletakkan di sini untuk keamanan fetch (jika diperlukan nanti) -->
+  {% csrf_token %}
+
   <div class="max-w-6xl mx-auto mb-8">
     <h1 class="text-2xl font-bold text-[var(--color-text-header)] flex items-center gap-2">
       <ion-icon name="layers-outline" class="text-[var(--color-primary)]"></ion-icon>
@@ -11,13 +73,13 @@
       Jelajahi file berdasarkan kategori
     </p>
   </div>
-
-  <!-- CATEGORY GRID -->
   <div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    <!-- ALL -->
-    <!-- <a href="{% url 'files:manage' %}" -->
-    <a href=""
-      class="group p-6 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-form)] hover:bg-[var(--color-bg-hover)] transition">
+    
+    <button type="button"
+      :data-type="file_type.ALL"
+      @click="fetchCategory($el.dataset.type)"
+      :class="{ 'ring-2 ring-[var(--color-primary)]': active === 'all' }"
+      class="text-left w-full group p-6 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-form)] hover:bg-[var(--color-bg-hover)] transition cursor-pointer focus:outline-none">
       <div class="flex items-center gap-3">
         <ion-icon name="apps-outline" class="text-3xl text-[var(--color-primary)]"></ion-icon>
         <h3 class="text-lg font-semibold text-[var(--color-text-header)]">
@@ -27,12 +89,14 @@
       <p class="mt-3 text-sm text-[var(--color-text-muted)]">
         Lihat seluruh file tanpa filter kategori
       </p>
-    </a>
+    </button>
 
-    <!-- ARCHIVE -->
-    <!-- <a href="{% url 'files:manage' %}?type=archive" -->
-    <a href=""
-      class="group p-6 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-form)] hover:bg-[var(--color-bg-hover)] transition">
+    <!-- archive -->
+    <button type="button"
+      :data-type="file_type.ARSIP"
+      @click="fetchCategory($el.dataset.type)"
+      :class="{ 'ring-2 ring-[var(--color-warning)]': active === 'archive' }"
+      class="text-left w-full group p-6 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-form)] hover:bg-[var(--color-bg-hover)] transition cursor-pointer focus:outline-none">
       <div class="flex items-center gap-3">
         <ion-icon name="archive-outline" class="text-3xl text-[var(--color-warning)]"></ion-icon>
         <h3 class="text-lg font-semibold">Arsip</h3>
@@ -40,12 +104,14 @@
       <p class="mt-3 text-sm text-[var(--color-text-muted)]">
         .zip, .rar, .7z, .tar, .gz
       </p>
-    </a>
+    </button>
 
     <!-- CODE -->
-    <!-- <a href="{% url 'files:manage' %}?type=code" -->
-    <a href=""
-      class="group p-6 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-form)] hover:bg-[var(--color-bg-hover)] transition">
+    <button type="button"
+      :data-type="file_type.CODE"
+      @click="fetchCategory($el.dataset.type)"
+      :class="{ 'ring-2 ring-[var(--color-info)]': active === 'code' }"
+      class="text-left w-full group p-6 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-form)] hover:bg-[var(--color-bg-hover)] transition cursor-pointer focus:outline-none">
       <div class="flex items-center gap-3">
         <ion-icon name="code-slash-outline" class="text-3xl text-[var(--color-info)]"></ion-icon>
         <h3 class="text-lg font-semibold">Code</h3>
@@ -53,12 +119,14 @@
       <p class="mt-3 text-sm text-[var(--color-text-muted)]">
         .js, .py, .java, .rs, .html
       </p>
-    </a>
+    </button>
 
     <!-- DOCUMENT -->
-    <!-- <a href="{% url 'files:manage' %}?type=document" -->
-    <a href=""
-      class="group p-6 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-form)] hover:bg-[var(--color-bg-hover)] transition">
+    <button type="button"
+      :data-type="file_type.DOCUMENT"
+      @click="fetchCategory($el.dataset.type)"
+      :class="{ 'ring-2 ring-[var(--color-success)]': active === 'document' }"
+      class="text-left w-full group p-6 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-form)] hover:bg-[var(--color-bg-hover)] transition cursor-pointer focus:outline-none">
       <div class="flex items-center gap-3">
         <ion-icon name="document-text-outline" class="text-3xl text-[var(--color-success)]"></ion-icon>
         <h3 class="text-lg font-semibold">Document</h3>
@@ -66,12 +134,14 @@
       <p class="mt-3 text-sm text-[var(--color-text-muted)]">
         .pdf, .docx, .xlsx, .pptx
       </p>
-    </a>
+    </button>
 
-    <!-- EXECUTABLE -->
-    <!-- <a href="{% url 'files:manage' %}?type=executable" -->
-    <a href=""
-      class="group p-6 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-form)] hover:bg-[var(--color-bg-hover)] transition">
+    <!-- executable -->
+    <button type="button"
+      :data-type="file_type.EXECUTABLE"
+      @click="fetchCategory($el.dataset.type)"
+      :class="{ 'ring-2 ring-[var(--color-error)]': active === 'executable' }"
+      class="text-left w-full group p-6 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-form)] hover:bg-[var(--color-bg-hover)] transition cursor-pointer focus:outline-none">
       <div class="flex items-center gap-3">
         <ion-icon name="flash-outline" class="text-3xl text-[var(--color-error)]"></ion-icon>
         <h3 class="text-lg font-semibold">Executable</h3>
@@ -79,12 +149,14 @@
       <p class="mt-3 text-sm text-[var(--color-text-muted)]">
         .exe, .apk, .deb, .rpm
       </p>
-    </a>
+    </button>
 
     <!-- IMAGE -->
-    <!-- <a href="{% url 'files:manage' %}?type=image" -->
-    <a href=""
-      class="group p-6 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-form)] hover:bg-[var(--color-bg-hover)] transition">
+    <button type="button"
+      :data-type="file_type.IMAGE"
+      @click="fetchCategory($el.dataset.type)"
+      :class="{ 'ring-2 ring-[var(--color-accent-purple)]': active === 'image' }"
+      class="text-left w-full group p-6 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-form)] hover:bg-[var(--color-bg-hover)] transition cursor-pointer focus:outline-none">
       <div class="flex items-center gap-3">
         <ion-icon name="image-outline" class="text-3xl text-[var(--color-accent-purple)]"></ion-icon>
         <h3 class="text-lg font-semibold">Image</h3>
@@ -92,8 +164,101 @@
       <p class="mt-3 text-sm text-[var(--color-text-muted)]">
         .jpg, .png, .svg, .webp
       </p>
-    </a>
+    </button>
+
   </div>
+
+<div class="mt-12">
+  <!-- Header Judul Dinamis -->
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-xl font-bold text-[var(--color-text-header)] capitalize">
+      Daftar Berkas: <span x-text="active"></span>
+    </h2>
+    <span class="text-sm text-[var(--color-text-muted)]" x-text="`${data_file.length} file ditemukan`"></span>
+  </div>
+
+  <!--skeleton loading state -->
+  <div x-show="isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <template x-for="i in 3" :key="i">
+      <div class="p-5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-form)] animate-pulse">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 bg-gray-300 rounded-lg dark:bg-gray-700"></div>
+          <div class="flex-1 space-y-3 py-1">
+            <div class="h-4 bg-gray-300 rounded w-3/4 dark:bg-gray-700"></div>
+            <div class="h-3 bg-gray-300 rounded w-1/2 dark:bg-gray-700"></div>
+          </div>
+        </div>
+        <div class="mt-4 h-3 bg-gray-300 rounded w-full dark:bg-gray-700"></div>
+        <div class="mt-6 h-8 bg-gray-300 rounded w-full dark:bg-gray-700"></div>
+      </div>
+    </template>
+  </div>
+
+  <!-- empty state (jika data kosong & tidak loading) -->
+  <div x-show="!isLoading && data_file.length === 0" 
+       class="flex flex-col items-center justify-center py-16 text-center border-2 border-dashed border-[var(--color-border-light)] rounded-2xl">
+    <ion-icon name="folder-open-outline" class="text-5xl text-[var(--color-text-muted)] mb-3"></ion-icon>
+    <p class="text-lg font-medium text-[var(--color-text-header)]">Tidak Ada Berkas</p>
+    <p class="text-sm text-[var(--color-text-muted)] mt-1">Belum ada file yang diunggah untuk kategori ini.</p>
+  </div>
+
+  <!-- 3. MAIN DATA RENDERING GRID -->
+  <div x-show="!isLoading && data_file.length > 0" 
+       class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+       x-transition:enter="transition ease-out duration-300"
+       x-transition:enter-start="opacity-0 transform translate-y-4">
+    
+    <!-- Looping Array Menggunakan x-for -->
+    <template x-for="file in data_file" :key="file.id">
+      <div class="group relative p-5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-form)] hover:border-[var(--color-primary)] transition flex flex-col justify-between shadow-sm hover:shadow">
+        
+        <div>
+          <div class="flex items-start gap-4">
+            <div class="p-3 rounded-lg flex-shrink-0"
+                 :class="{
+                    'bg-blue-100 text-blue-600': file.code_file,
+                    'bg-emerald-100 text-emerald-600': file.document_file,
+                    'bg-amber-100 text-amber-600': file.arsip_file,
+                    'bg-red-100 text-red-600': file.executable_file,
+                    'bg-purple-100 text-purple-600': file.image_file
+                 }">
+              <ion-icon :name="file.code_file ? 'code-slash' : 
+                               (file.document_file ? 'document-text' : 
+                               (file.arsip_file ? 'archive' : 
+                               (file.executable_file ? 'flash' : 'image')))" 
+                        class="text-2xl flex"></ion-icon>
+            </div>
+
+            <div class="min-w-0 flex-1">
+              <h4 class="text-base font-semibold text-[var(--color-text-header)] truncate group-hover:text-[var(--color-primary)] transition" 
+                  x-text="file.fileName"></h4>
+              <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+                Dibuat pada: <span x-text="new Date(file.create_at).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})"></span>
+              </p>
+            </div>
+          </div>
+
+          <p class="mt-4 text-sm text-[var(--color-text-muted)] line-clamp-2 min-h-[40px]" 
+             x-text="file.description || 'Tidak ada deskripsi berkas.'"></p>
+        </div>
+        <div class="mt-5 pt-4 border-t border-[var(--color-border-light)] flex items-center justify-between">
+          <span class="text-xs font-medium text-[var(--color-text-muted)]" 
+                x-text="file.file_size < 1024 ? file.file_size + ' B' : 
+                        (file.file_size < 1048576 ? (file.file_size / 1024).toFixed(1) + ' KB' : 
+                        (file.file_size / 1048576).toFixed(1) + ' MB')"></span>
+
+          <a :href="'/media/' + (file.code_file || file.document_file || file.arsip_file || file.executable_file || file.image_file)" 
+             download
+             class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--color-bg-hover)] text-[var(--color-text-header)] hover:bg-[var(--color-primary)] hover:text-white transition">
+            <ion-icon name="download-outline"></ion-icon>
+            Unduh
+          </a>
+        </div>
+
+      </div>
+    </template>
+  </div>
+</div>
 </div>
 
 <!-- Ionicons -->

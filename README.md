@@ -1,10 +1,8 @@
 <h1 align="center"> ShareHub  </h1>
 
-<p align="center">
+> Aplikasi share file , image , dan lainya , layaknya media social
 
-Aplikasi share file , image , dan lainya , layaknya media social
-
-</p>
+<br>
 
 ### Tech Stack
 
@@ -14,9 +12,11 @@ Aplikasi share file , image , dan lainya , layaknya media social
   <img src="https://skillicons.dev/icons?i=javascript" width="50" alt="Alpine.js" />
   <img src="https://skillicons.dev/icons?i=html" width="50" alt="HTML" />
   <img src="https://skillicons.dev/icons?i=tailwindcss" width="50" alt="HTML" />
- 
+
   <img src="https://img.shields.io/badge/uv-FF6F00?logo=python&logoColor=white&style=for-the-badge" height="40" alt="uv" />
 </p>
+
+<br>
 
 ### started
 
@@ -33,11 +33,13 @@ use this password for generated or test
 
 > jika belum punya register aja dulu
 
-```bash
-user : daraja
-pass : dar_231=[]
+<br>
 
-```
+### HUB
+
+, cuman 1 halaman hub utama yang banyak user bisa berkomentar terkait file dan isinya ,user bisa berbagi dengan mengupload di sini
+
+<br>
 
 ### Main App
 
@@ -46,6 +48,8 @@ pass : dar_231=[]
 > `pages` ('\pages\') akan menjadi App utama yg menghandle halaman untuk di tampilkan
 > `hub` ('\hub\')= bagian pages untuk cominity berinteraksi nantinya
 > `api` ('\api\')= app API untuk handle seperti , upload file , dan lain sebagainay
+
+<br>
 
 ### Static
 
@@ -63,9 +67,11 @@ pass : dar_231=[]
 
 - `media` = folder untuk menyimpan file
 
-### table
+### Model
 
 - `fileManagements` = table untuk menyimpan file
+- `hub` = table di hub blog yang menyimpan message dan file path
+- ``
 
 ### Dafar Api
 
@@ -168,6 +174,8 @@ atau
 ```json
 { "error": "Invalid request method." }
 ```
+
+<br>
 
 ### Daftar App color
 
